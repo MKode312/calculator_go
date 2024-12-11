@@ -140,25 +140,12 @@ func Calc(expression string) (float64, error) {
 }
 
 func main() {
-	expressions := []string{
-		"1 + 1*",
-		"2/0",
-		"3 + 5 * (2 - 8)",
-		"10 / 2",
-		"(1 + 2) * 5",
-		"1 + + 1",
-		"1 + (2 * 3",
-		"1 + 2)",
-		"3 - (2 + 1))",
-		"2 - 2 +",
-	}
-
-	for _, expr := range expressions {
-		result, err := Calc(expr)
-		if err != nil {
-			fmt.Printf("Error calculating expression '%s': %s\n", expr, err)
-		} else {
-			fmt.Printf("Result of '%s': %f\n", expr, result)
-		}
+	var expr string
+	fmt.Scanln(&expr)
+	result, err := Calc(expr)
+	if err != nil {
+		fmt.Printf("Error calculating expression '%s': %s\n", expr, err)
+	} else {
+		fmt.Printf("Result of '%s': %f\n", expr, result)
 	}
 }
