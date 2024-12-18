@@ -73,10 +73,18 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 
 	result, err := calc.Calc(request.Expression)
 	if err != nil {
-		if errors.Is(err, calc.ErrInvalidExpression) || errors.Is(err, calc.ErrEmptyExpression) || errors.Is(err, calc.ErrDivisionByZero) {
+
+		if errors.Is(err, calc.ErrInvalidExpression) ||
+			errors.Is(err, calc.ErrEmptyExpression) ||
+			errors.Is(err, calc.ErrDivisionByZero) ||
+			errors.Is(err, calc.ErrTwoConsecutiveOps) ||
+			errors.Is(err, calc.ErrExpressionCannotEndWithOp) ||
+			errors.Is(err, calc.ErrInvalidOp) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-		} else if errors.Is(err, calc.ErrExpressionCannotEndWithOp) || errors.Is(err, calc.ErrInvalidCharInExpression) {
-			http.Error(w, err.Error(), http.StatusNotAcceptable)
+		} else if errors.Is(err, calc.ErrInvalidCharInExpression) {
+			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	} else {
 		fmt.Fprintf(w, "result: %f", result)

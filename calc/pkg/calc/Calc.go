@@ -1,7 +1,6 @@
 package calc
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -28,7 +27,7 @@ func Apply(op rune, a, b float64) (float64, error) {
 		}
 		return a / b, nil
 	}
-	return 0, errors.New("invalid operator")
+	return 0, ErrInvalidOp
 }
 
 func Calc(expression string) (float64, error) {
@@ -43,7 +42,7 @@ func Calc(expression string) (float64, error) {
 	if len(expression) == 0 {
 		return 0, ErrEmptyExpression
 	}
-	if strings.ContainsAny(string(expression[len(expression)-1]), "+-*/") {
+	if strings.ContainsAny(string(expression[len(expression)-1]), "+-*/()") {
 		return 0, ErrExpressionCannotEndWithOp
 	}
 
@@ -55,7 +54,7 @@ func Calc(expression string) (float64, error) {
 
 		if strings.ContainsRune("+-*/", char) {
 			if i > 0 && strings.ContainsRune("+-*/", rune(expression[i-1])) {
-				return 0, errors.New("two consecutive operators")
+				return 0, ErrTwoConsecutiveOps
 			}
 		}
 
@@ -90,7 +89,7 @@ func Calc(expression string) (float64, error) {
 				values = append(values, result)
 			}
 			if len(operators) == 0 {
-				return 0, errors.New("mismatched parentheses")
+				return 0, ErrMismatchedParentheses
 			}
 			operators = operators[:len(operators)-1]
 		} else if _, exists := precedence[char]; exists {
