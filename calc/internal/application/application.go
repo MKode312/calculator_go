@@ -3,6 +3,7 @@ package application
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -50,7 +51,7 @@ func (a *Application) Run() error {
 		}
 		result, err := calc.Calc(text)
 		if err != nil {
-			log.Println(text, " calculation failed wit error: ", err)
+			log.Println(text, " calculation failed with error: ", err)
 		} else {
 			log.Println(text, "=", result)
 		}
@@ -72,7 +73,11 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 
 	result, err := calc.Calc(request.Expression)
 	if err != nil {
-		fmt.Fprintf(w, "err: %s", err.Error())
+		if errors.Is(err, calc.ErrInvalidExpression) || errors.Is(err, calc.ErrEmptyExpression) || errors.Is(err, calc.ErrDivisionByZero) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		} else if errors.Is(err, calc.ErrExpressionCannotEndWithOp) || errors.Is(err, calc.ErrInvalidCharInExpression) {
+			http.Error(w, err.Error(), http.StatusNotAcceptable)
+		}
 	} else {
 		fmt.Fprintf(w, "result: %f", result)
 	}

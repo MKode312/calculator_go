@@ -24,7 +24,7 @@ func Apply(op rune, a, b float64) (float64, error) {
 		return a * b, nil
 	case '/':
 		if b == 0 {
-			return 0, errors.New("division by zero")
+			return 0, ErrDivisionByZero
 		}
 		return a / b, nil
 	}
@@ -41,10 +41,10 @@ func Calc(expression string) (float64, error) {
 	expression = strings.ReplaceAll(expression, " ", "")
 
 	if len(expression) == 0 {
-		return 0, errors.New("empty expression")
+		return 0, ErrEmptyExpression
 	}
 	if strings.ContainsAny(string(expression[len(expression)-1]), "+-*/") {
-		return 0, errors.New("expression cannot end with an operator")
+		return 0, ErrExpressionCannotEndWithOp
 	}
 
 	operators := []rune{}
@@ -75,7 +75,7 @@ func Calc(expression string) (float64, error) {
 		} else if char == ')' {
 			for len(operators) > 0 && operators[len(operators)-1] != '(' {
 				if len(values) < 2 {
-					return 0, errors.New("invalid expression")
+					return 0, ErrInvalidExpression
 				}
 				v2 := values[len(values)-1]
 				values = values[:len(values)-1]
@@ -96,7 +96,7 @@ func Calc(expression string) (float64, error) {
 		} else if _, exists := precedence[char]; exists {
 			for len(operators) > 0 && precedence[operators[len(operators)-1]] >= precedence[char] {
 				if len(values) < 2 {
-					return 0, errors.New("invalid expression")
+					return 0, ErrInvalidExpression
 				}
 				v2 := values[len(values)-1]
 				values = values[:len(values)-1]
@@ -112,13 +112,13 @@ func Calc(expression string) (float64, error) {
 			}
 			operators = append(operators, char)
 		} else {
-			return 0, errors.New("invalid character in expression")
+			return 0, ErrInvalidCharInExpression
 		}
 	}
 
 	for len(operators) > 0 {
 		if len(values) < 2 {
-			return 0, errors.New("invalid expression")
+			return 0, ErrInvalidExpression
 		}
 		v2 := values[len(values)-1]
 		values = values[:len(values)-1]
@@ -134,18 +134,7 @@ func Calc(expression string) (float64, error) {
 	}
 
 	if len(values) != 1 {
-		return 0, errors.New("invalid expression")
+		return 0, ErrInvalidExpression
 	}
 	return values[0], nil
-}
-
-func main() {
-	var expr string
-	fmt.Scanln(&expr)
-	result, err := Calc(expr)
-	if err != nil {
-		fmt.Printf("Error calculating expression '%s': %s\n", expr, err)
-	} else {
-		fmt.Printf("Result of '%s': %f\n", expr, result)
-	}
 }
