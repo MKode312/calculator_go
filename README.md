@@ -6,8 +6,8 @@
 
 Для того чтобы установить и запустить проект, выполните следующие шаги:
 
-1. Клонируйте этот репозиторий: git clone https://github.com/MKor312/calculator_go.git
-2. Перейдите в директорию проекта: cd calculator_go/cmd
+1. Клонируйте этот репозиторий командой: git clone https://github.com/MKor312/calculator_go.git
+2. Перейдите в директорию проекта c помощью команды: cd calculator_go/cmd
 3. Для запуска калькулятора выполните следующую команду: go run main.go
 
 ## Использование
@@ -16,7 +16,7 @@
 
 1. curl --location "http://localhost:8080/api/v1/calculate" ^
 --header "Content-Type: application/json" ^
---data "{ \"expression\": \"2+2*4\" }"
+--data "{ \"expression\": \"2 + 2 * 4 \" }"
 
 2. curl --location "http://localhost:8080/api/v1/calculate" ^
 --header "Content-Type: application/json" ^
@@ -24,7 +24,7 @@
 
 3. curl --location "http://localhost:8080/api/v1/calculate" ^
 --header "Content-Type: application/json" ^
---data "{ \"expression\": \"(4+ 5) * 6\" }"
+--data "{ \"expression\": \"(4 + 5) * 6\" }"
 
 ## Примеры
 
