@@ -28,23 +28,17 @@
 
 Также немного примеров запросов для macOS и Linux:
 
-1. `curl --location 'localhost/api/v1/calculate' \
+1. `curl --location 'http://localhost:8080/api/v1/calculate' \
 --header 'Content-Type: application/json' \
---data '{
-  "expression": "2 + 2 * 2"
-}'`
+--data '{ "expression": "156 - 36" }'`
 
-2. `curl --location 'localhost/api/v1/calculate' \
+2. `curl --location 'http://localhost:8080/api/v1/calculate' \
 --header 'Content-Type: application/json' \
---data '{
-  "expression": "(78 + 83) / 160"
-}'`
+--data '{ "expression": "9 * 8" }'`
 
-3. `curl --location 'localhost/api/v1/calculate' \
+3. `curl --location 'http://localhost:8080/api/v1/calculate' \
 --header 'Content-Type: application/json' \
---data '{
-  "expression": "7 * 62"
-}'`
+--data '{ "expression": "(65 + 35) / 100" }'`
 
 ## Примеры
 
