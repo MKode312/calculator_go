@@ -42,17 +42,23 @@
 
 ## Примеры
 
-Вот некоторые примеры использования с ожидаемыми результатами:
+Вот некоторые примеры использования для Windows (Command Prompt) с ожидаемыми результатами:
 
-- Ввод: `3 + 4`
-  - Вывод: `7`
+- Ввод: `curl --location "http://localhost:8080/api/v1/calculate" ^ 
+--header "Content-Type: application/json" ^ 
+--data "{ \"expression\": \"(8 + 6) * 4\" }"`
+  - Вывод: `result: 56.000000 `
 - Код: 200
   
-- Ввод: `10/0`
+- Ввод: `curl --location "http://localhost:8080/api/v1/calculate" ^
+ --header "Content-Type: application/json" ^
+ --data "{ \"expression\": \"10/0\" }"`
   - Вывод: `division by zero`
 - Код: 400
   
-- Ввод: `8 + a`
+- Ввод: `curl --location "http://localhost:8080/api/v1/calculate" ^ 
+--header "Content-Type: application/json" ^ 
+--data "{ \"expression\": \"8 + abc\" }"`
   - Вывод: `invalid character in expression`
 - Код: 422
   
