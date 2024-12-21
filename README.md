@@ -14,17 +14,17 @@
 
 Вы можете отдавать серверу запросы с помощью curl, например: 
 
-1. curl --location "http://localhost:8080/api/v1/calculate" ^
+1. `curl --location "http://localhost:8080/api/v1/calculate" ^
 --header "Content-Type: application/json" ^
---data "{ \"expression\": \"2 + 2 * 4 \" }"
+--data "{ \"expression\": \"2 + 2 * 4 \" }"`	
 
-2. curl --location "http://localhost:8080/api/v1/calculate" ^
+2. `curl --location "http://localhost:8080/api/v1/calculate" ^
 --header "Content-Type: application/json" ^
---data "{ \"expression\": \"8 + 679\" }"
+--data "{ \"expression\": \"8 + 679\" }"`
 
-3. curl --location "http://localhost:8080/api/v1/calculate" ^
+3. `curl --location "http://localhost:8080/api/v1/calculate" ^
 --header "Content-Type: application/json" ^
---data "{ \"expression\": \"(4 + 5) * 6\" }"
+--data "{ \"expression\": \"(4 + 5) * 6\" }"`
 
 ## Примеры
 
