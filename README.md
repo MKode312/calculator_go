@@ -61,4 +61,26 @@
 --data "{ \"expression\": \"8 + abc\" }"`
   - Вывод: `invalid character in expression`
 - Код: 422
+
+И для macOS и Linux:
+
+- Ввод: `curl --location 'http://localhost:8080/api/v1/calculate' \
+--header 'Content-Type: application/json' \
+--data '{ "expression": "(65 + 35) / 100" }'`
+  - Вывод: `result: 1.000000 `
+- Код: 200
   
+- Ввод: `curl --location 'http://localhost:8080/api/v1/calculate' \
+--header 'Content-Type: application/json' \
+--data '{ "expression": "7**6" }'`
+  - Вывод: `two consecutive operators`
+- Код: 400
+  
+- Ввод: `curl --location 'http://localhost:8080/api/v1/calculate' \
+--header 'Content-Type: application/json' \
+--data '{ "expression": "19 - n" }'`
+  - Вывод: `invalid character in expression`
+- Код: 422
+
+
+ 
