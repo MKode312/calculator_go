@@ -36,7 +36,7 @@
 --header "Content-Type: application/json" ^
 --data "{ \"expression\": \"(4 + 5) * 6\" }"`
 
-Также немного примеров запросов для macOS и Linux:
+### Для macOS и Linux:
 
 1. `curl --location 'http://localhost:8080/api/v1/calculate' \
 --header 'Content-Type: application/json' \
@@ -74,7 +74,7 @@
   - Вывод: `invalid character in expression`
 - Код [422]
 
-И для macOS и Linux:
+### Для macOS и Linux:
 
 - Ввод: `curl --location 'http://localhost:8080/api/v1/calculate' \
 --header 'Content-Type: application/json' \
