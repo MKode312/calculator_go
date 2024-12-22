@@ -1,6 +1,8 @@
-# Calculator Go
+# Сalculator go
 
-Данный проект является простым HTTP сервером с калькулятором, написанным на языке Go. Калькулятор принимает арифметическое выражение по HTTP и возвращает его результат. Если присутствует ошибка, то калькулятор возвращает эту ошибку.
+Данный проект является веб-сервисом с калькулятором, написанным на языке Go. Пользователь отправляет арифметическое выражение по HTTP и получает в ответ его результат.
+
+---
 
 ## Структура проекта
 
@@ -10,97 +12,139 @@
 
 ---
 
-## Установка
+## Установка и запуск
 
-Для того чтобы установить и запустить проект, выполните следующие шаги:
+1. Клонируйте этот репозиторий командой:
 
-1. Клонируйте этот репозиторий командой: ``` git clone https://github.com/MKor312/calculator_go.git ```
-2. Перейдите в директорию проекта c помощью команды: ``` cd calculator_go/cmd ```
-3. Для запуска калькулятора выполните следующую команду: ``` go run main.go ```
+```bash
+https://github.com/MKor312/calculator_go.git
+```
+
+2. Перейдите в директорию проекта с помощью команды:
+
+```bash
+cd calculator_go/cmd
+```
+
+3. Запустите сервер командой:
+
+```bash
+go run main.go
+```
 
 ---
 
 ## Использование
 
-Вы можете отдавать серверу запросы с помощью curl, вот несколько примеров запросов для Windows (Command Prompt): 
+### Endpoint
 
-1. `curl --location "http://localhost:8080/api/v1/calculate" ^
---header "Content-Type: application/json" ^
---data "{ \"expression\": \"2 + 2 * 4 \" }"`	
-
-2. `curl --location "http://localhost:8080/api/v1/calculate" ^
---header "Content-Type: application/json" ^
---data "{ \"expression\": \"8 + 679\" }"`
-
-3. `curl --location "http://localhost:8080/api/v1/calculate" ^
---header "Content-Type: application/json" ^
---data "{ \"expression\": \"(4 + 5) * 6\" }"`
-
-### Для macOS и Linux:
-
-1. `curl --location 'http://localhost:8080/api/v1/calculate' \
---header 'Content-Type: application/json' \
---data '{ "expression": "156 - 36" }'`
-
-2. `curl --location 'http://localhost:8080/api/v1/calculate' \
---header 'Content-Type: application/json' \
---data '{ "expression": "9 * 8" }'`
-
-3. ```bash
-curl --location 'http://localhost:8080/api/v1/calculate' \
---header 'Content-Type: application/json' \
---data '{
-  "expression": "2 + 2 * 2"
-}'
 ```
+POST /api/v1/calculate
+```
+
+### Заголовки
+
+- `Content-Type: application/json`
+
+### Тело запроса
+
+Пример:
+
+```json
+{
+  "expression": "60 / 30 - 1"
+}
+```
+
+### Ответы
+
+1. **Успешный запрос**
+
+   **Код:** `200 OK`  
+   **Пример ответа:**
+
+   ```json
+   {
+     "result": "1.000000"
+   }
+   ```
+
+2. **Ошибка обработки выражения**
+
+   **Код:** `422 Unprocessable Entity`  
+   **Пример ответа:**
+
+   ```json
+   {
+     "invalid character in expression"
+   }
+   ```
+
+3. **Некорректное тело запроса**
+
+   **Код:** `400 Bad Request`  
+   **Пример ответа:**
+
+   ```json
+   {
+     "invalid expression"
+   }
+   ```
 
 ---
 
-## Примеры
+## Примеры использования
 
-Вот некоторые примеры использования для Windows (Command Prompt) с ожидаемыми результатами:
+1. **Успешный запрос**:
 
-- Ввод: ``` curl --location "http://localhost:8080/api/v1/calculate" ^ 
---header "Content-Type: application/json" ^ 
---data "{ \"expression\": \"(8 + 6) * 4\" }" ```
-  - Вывод: ``` result: 56.000000 ```
-- Код [200]
-  
-- Ввод: ``` curl --location "http://localhost:8080/api/v1/calculate" ^
- --header "Content-Type: application/json" ^
- --data "{ \"expression\": \"10/0\" }" ```
-  - Вывод: ``` division by zero ```
-- Код [400]
-  
-- Ввод: ``` curl --location "http://localhost:8080/api/v1/calculate" ^ 
---header "Content-Type: application/json" ^ 
---data "{ \"expression\": \"8 + abc\" }" ```
-  - Вывод: ``` invalid character in expression ```
-- Код [422]
-
-### Для macOS и Linux:
-
-- Ввод: ``` curl --location 'http://localhost:8080/api/v1/calculate' \
+```bash
+curl --location 'http://localhost:8080/api/v1/calculate' \
 --header 'Content-Type: application/json' \
---data '{ "expression": "(65 + 35) / 100" }' ```
-  - Вывод: ``` result: 1.000000 ```
-- Код [200]
-  
-- Ввод: ``` curl --location 'http://localhost:8080/api/v1/calculate' \
+--data '{
+  "expression": "5 + 6 * 3"
+}'
+```
+
+Ответ:
+
+```json
+{
+  "result": "23.000000"
+}
+```
+
+2. **Ошибка: некорректное выражение**:
+
+```bash
+curl --location 'http://localhost:8080/api/v1/calculate' \
 --header 'Content-Type: application/json' \
---data '{ "expression": "7**6" }' ```
-  - Вывод: ``` two consecutive operators ```
-- Код [400]
-  
-- Ввод: ``` curl --location 'http://localhost:8080/api/v1/calculate' \
+--data '{
+  "expression": "6 * 7y[4"
+}'
+```
+
+Ответ:
+
+```json
+{
+  "invalid charachter in expression"
+}
+```
+
+3. **Ошибка: некорректный запрос**:
+
+```bash
+curl --location 'http://localhost:8080/api/v1/calculate' \
 --header 'Content-Type: application/json' \
---data '{ "expression": "19 - n" }' ```
-  - Вывод: ``` invalid character in expression ```
-- Код [422]
+--data '{
+  "expression": "10/0"
+}'
+```
 
-В случае возникновения непредвиденных ошибок со стороны сервера, вывод будет таков: 
-``` Internal server error ```
-- Код: [500]
+Ответ:
 
-
- 
+```json
+{
+  "division by zero"
+}
+```
