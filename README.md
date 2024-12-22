@@ -17,7 +17,7 @@
 1. Клонируйте этот репозиторий командой:
 
 ```bash
-https://github.com/MKor312/calculator_go.git
+git clone https://github.com/MKor312/calculator_go.git
 ```
 
 2. Перейдите в директорию проекта с помощью команды:
