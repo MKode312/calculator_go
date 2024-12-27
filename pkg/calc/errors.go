@@ -3,7 +3,7 @@ package calc
 import "errors"
 
 var (
-	ErrInvalidExpression         = errors.New("invalid expression")
+	ErrInvalidExpression         = errors.New("`invalid expression`")
 	ErrInvalidOp                 = errors.New("invalid operator")
 	ErrDivisionByZero            = errors.New("division by zero")
 	ErrEmptyExpression           = errors.New("empty expression")
