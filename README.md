@@ -65,7 +65,7 @@ POST /api/v1/calculate
 
    ```json
    {
-     "result": "1.000000"
+     "result": "1"
    }
    ```
 
@@ -76,7 +76,7 @@ POST /api/v1/calculate
 
    ```json
    {
-     "invalid character in expression"
+     "error": "Expression is not valid"
    }
    ```
 
@@ -87,7 +87,7 @@ POST /api/v1/calculate
 
    ```json
    {
-     "invalid expression"
+     "error": "Expression is not valid"
    }
    ```
 
@@ -109,7 +109,7 @@ curl --location 'http://localhost:8080/api/v1/calculate' \
 
 ```json
 {
-  "result": "23.000000"
+  "result": "23"
 }
 ```
 
@@ -127,7 +127,7 @@ curl --location 'http://localhost:8080/api/v1/calculate' \
 
 ```json
 {
-  "invalid charachter in expression"
+  "error": "Expression is not valid"
 }
 ```
 
@@ -145,7 +145,7 @@ curl --location 'http://localhost:8080/api/v1/calculate' \
 
 ```json
 {
-  "division by zero"
+  "error": "Expression is not valid"
 }
 ```
 
@@ -155,7 +155,7 @@ curl --location 'http://localhost:8080/api/v1/calculate' \
 
 ```json
 {
-  "Internal server error"
+  "error": "Internal server error"
 }
 ``` 
 **Код:** `500 Internal Server Error`
