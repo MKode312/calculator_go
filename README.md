@@ -80,17 +80,6 @@ POST /api/v1/calculate
    }
    ```
 
-3. **Некорректное тело запроса**
-
-   **Код:** `400 Bad Request`  
-   **Пример ответа:**
-
-   ```json
-   {
-     "error": "Expression is not valid"
-   }
-   ```
-
 ---
 
 ## Примеры использования
@@ -120,24 +109,6 @@ curl --location 'http://localhost:8080/api/v1/calculate' \
 --header 'Content-Type: application/json' \
 --data '{
   "expression": "6 * 7y[4"
-}'
-```
-
-Ответ:
-
-```json
-{
-  "error": "Expression is not valid"
-}
-```
-
-3. **Ошибка: некорректный запрос**:
-
-```bash
-curl --location 'http://localhost:8080/api/v1/calculate' \
---header 'Content-Type: application/json' \
---data '{
-  "expression": "10/0"
 }'
 ```
 
