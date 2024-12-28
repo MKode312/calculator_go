@@ -65,7 +65,7 @@ POST /api/v1/calculate
 
    ```json
    {
-     "result": "1"
+     "result": 1
    }
    ```
 
@@ -98,7 +98,7 @@ curl --location 'http://localhost:8080/api/v1/calculate' \
 
 ```json
 {
-  "result": "23"
+  "result": 23
 }
 ```
 
