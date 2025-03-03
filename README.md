@@ -163,7 +163,6 @@ Example response (200):
             "id": "2",
             "expression": "7/(5-5)",
             "status": "error",
-            "result": null
         }
     ]
 }
@@ -187,6 +186,7 @@ Response (200):
 {
     "expression": {
         "id": "1",
+        "expression": "(10-5)*3-10/2",
         "status": "completed",
         "result": 10
     }
@@ -261,6 +261,7 @@ curl http://localhost:8080/api/v1/expressions/1
 {
     "expression": {
         "id": "1",
+        "expression": "2+2*2",
         "status": "completed",
         "result": 6
     }
@@ -273,12 +274,15 @@ curl http://localhost:8080/api/v1/expressions/1
 curl --location 'http://localhost:8080/api/v1/calculate' \
 --data '{"expression": "12/(9-9)"}'
 
+# Checking the status
+curl http://localhost:8080/api/v1/expressions/2
+
 # Response:
 {
     "expression": {
         "id": "2",
+        "expression": "12/(9-9)",
         "status": "error",
-        "result": null
     }
 }
 ```
