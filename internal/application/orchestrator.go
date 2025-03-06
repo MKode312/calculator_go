@@ -54,20 +54,20 @@ func ConfigFromEnv() *Config {
 
 type Orchestrator struct {
 	Config      *Config
-	exprStore   map[string]*Expression
-	taskStore   map[string]*Task
-	taskQueue   []*Task
+	ExprStore   map[string]*Expression
+	TaskStore   map[string]*Task
+	TaskQueue   []*Task
 	mu          sync.Mutex
-	exprCounter int64
-	taskCounter int64
+	ExprCounter int64
+	TaskCounter int64
 }
 
 func NewOrchestrator() *Orchestrator {
 	return &Orchestrator{
 		Config:    ConfigFromEnv(),
-		exprStore: make(map[string]*Expression),
-		taskStore: make(map[string]*Task),
-		taskQueue: make([]*Task, 0),
+		ExprStore: make(map[string]*Expression),
+		TaskStore: make(map[string]*Task),
+		TaskQueue: make([]*Task, 0),
 	}
 }
 
@@ -89,19 +89,19 @@ type Task struct {
 	Node          *ast.ASTNode `json:"-"`
 }
 
-func checkExpressionErrors(node *ast.ASTNode) error {
+func CheckExpressionErrors(node *ast.ASTNode) error {
 	if node == nil {
 		return errorsForCalc.ErrEmptyExpression
 	}
 
-	if err := validateNode(node); err != nil {
+	if err := ValidateNode(node); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func validateNode(node *ast.ASTNode) error {
+func ValidateNode(node *ast.ASTNode) error {
 	if node.IsLeaf {
 		return nil
 	}
@@ -130,17 +130,17 @@ func validateNode(node *ast.ASTNode) error {
 		return errorsForCalc.ErrDivisionByZero
 	}
 
-	if err := validateNode(node.Left); err != nil {
+	if err := ValidateNode(node.Left); err != nil {
 		return err
 	}
-	if err := validateNode(node.Right); err != nil {
+	if err := ValidateNode(node.Right); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (o *Orchestrator) calculateHandler(w http.ResponseWriter, r *http.Request) {
+func (o *Orchestrator) CalculateHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, `{"error":"Wrong Method"}`, http.StatusMethodNotAllowed)
 		return
@@ -159,16 +159,16 @@ func (o *Orchestrator) calculateHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	o.mu.Lock()
-	o.exprCounter++
-	exprID := fmt.Sprintf("%d", o.exprCounter)
+	o.ExprCounter++
+	exprID := fmt.Sprintf("%d", o.ExprCounter)
 	expr := &Expression{
 		ID:     exprID,
 		Expr:   req.Expression,
 		Status: "pending",
 		AST:    ast,
 	}
-	o.exprStore[exprID] = expr
-	o.scheduleTasks(expr)
+	o.ExprStore[exprID] = expr
+	o.ScheduleTasks(expr)
 	o.mu.Unlock()
 
 	w.Header().Set("Content-Type", "application/json")
@@ -176,7 +176,7 @@ func (o *Orchestrator) calculateHandler(w http.ResponseWriter, r *http.Request) 
 	json.NewEncoder(w).Encode(map[string]string{"id": exprID})
 }
 
-func (o *Orchestrator) expressionsHandler(w http.ResponseWriter, r *http.Request) {
+func (o *Orchestrator) ExpressionsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, `{"error":"Wrong Method"}`, http.StatusMethodNotAllowed)
 		return
@@ -184,10 +184,10 @@ func (o *Orchestrator) expressionsHandler(w http.ResponseWriter, r *http.Request
 	o.mu.Lock()
 	defer o.mu.Unlock()
 
-	exprs := make([]*Expression, 0, len(o.exprStore))
-	for _, expr := range o.exprStore {
+	exprs := make([]*Expression, 0, len(o.ExprStore))
+	for _, expr := range o.ExprStore {
 		if expr.AST != nil && expr.AST.IsLeaf {
-			if err := checkExpressionErrors(expr.AST); err != nil {
+			if err := CheckExpressionErrors(expr.AST); err != nil {
 				expr.Status = "error"
 				expr.Result = nil
 			} else {
@@ -202,14 +202,14 @@ func (o *Orchestrator) expressionsHandler(w http.ResponseWriter, r *http.Request
 	json.NewEncoder(w).Encode(map[string]interface{}{"expressions": exprs})
 }
 
-func (o *Orchestrator) expressionByIDHandler(w http.ResponseWriter, r *http.Request) {
+func (o *Orchestrator) ExpressionByIDHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, `{"error":"Wrong Method"}`, http.StatusMethodNotAllowed)
 		return
 	}
 	id := r.URL.Path[len("/api/v1/expressions/"):]
 	o.mu.Lock()
-	expr, ok := o.exprStore[id]
+	expr, ok := o.ExprStore[id]
 	o.mu.Unlock()
 	if !ok {
 		http.Error(w, `{"error":"Expression not found"}`, http.StatusNotFound)
@@ -223,7 +223,7 @@ func (o *Orchestrator) expressionByIDHandler(w http.ResponseWriter, r *http.Requ
 	json.NewEncoder(w).Encode(map[string]interface{}{"expression": expr})
 }
 
-func (o *Orchestrator) getTaskHandler(w http.ResponseWriter, r *http.Request) {
+func (o *Orchestrator) GetTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, `{"error":"Wrong Method"}`, http.StatusMethodNotAllowed)
 		return
@@ -231,17 +231,17 @@ func (o *Orchestrator) getTaskHandler(w http.ResponseWriter, r *http.Request) {
 	o.mu.Lock()
 	defer o.mu.Unlock()
 
-	if len(o.taskQueue) == 0 {
+	if len(o.TaskQueue) == 0 {
 		http.Error(w, `{"error":"No task available"}`, http.StatusNotFound)
 		return
 	}
 
-	task := o.taskQueue[0]
-	o.taskQueue = o.taskQueue[1:]
+	task := o.TaskQueue[0]
+	o.TaskQueue = o.TaskQueue[1:]
 
-	if expr, exists := o.exprStore[task.ExprID]; exists {
+	if expr, exists := o.ExprStore[task.ExprID]; exists {
 		if expr.Status == "pending" || expr.Status == "completed" {
-			if err := checkExpressionErrors(expr.AST); err != nil {
+			if err := CheckExpressionErrors(expr.AST); err != nil {
 				expr.Status = "error"
 				expr.Result = nil
 			} else {
@@ -256,7 +256,7 @@ func (o *Orchestrator) getTaskHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{"task": task})
 }
-func (o *Orchestrator) postTaskHandler(w http.ResponseWriter, r *http.Request) {
+func (o *Orchestrator) PostTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, `{"error":"Wrong Method"}`, http.StatusMethodNotAllowed)
 		return
@@ -271,7 +271,7 @@ func (o *Orchestrator) postTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	o.mu.Lock()
-	task, ok := o.taskStore[req.ID]
+	task, ok := o.TaskStore[req.ID]
 	if !ok {
 		o.mu.Unlock()
 		http.Error(w, `{"error":"Task not found"}`, http.StatusNotFound)
@@ -279,9 +279,9 @@ func (o *Orchestrator) postTaskHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	task.Node.IsLeaf = true
 	task.Node.Value = req.Result
-	delete(o.taskStore, req.ID)
-	if expr, exists := o.exprStore[task.ExprID]; exists {
-		o.scheduleTasks(expr)
+	delete(o.TaskStore, req.ID)
+	if expr, exists := o.ExprStore[task.ExprID]; exists {
+		o.ScheduleTasks(expr)
 		if expr.AST.IsLeaf {
 			expr.Status = "completed"
 			expr.Result = &expr.AST.Value
@@ -292,7 +292,7 @@ func (o *Orchestrator) postTaskHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"status":"result accepted"}`))
 }
 
-func (o *Orchestrator) scheduleTasks(expr *Expression) {
+func (o *Orchestrator) ScheduleTasks(expr *Expression) {
 	var traverse func(node *ast.ASTNode)
 	traverse = func(node *ast.ASTNode) {
 		if node == nil || node.IsLeaf {
@@ -302,8 +302,8 @@ func (o *Orchestrator) scheduleTasks(expr *Expression) {
 		traverse(node.Right)
 		if node.Left != nil && node.Right != nil && node.Left.IsLeaf && node.Right.IsLeaf {
 			if !node.TaskScheduled {
-				o.taskCounter++
-				taskID := fmt.Sprintf("%d", o.taskCounter)
+				o.TaskCounter++
+				taskID := fmt.Sprintf("%d", o.TaskCounter)
 				var opTime int
 				switch node.Operator {
 				case "+":
@@ -327,8 +327,8 @@ func (o *Orchestrator) scheduleTasks(expr *Expression) {
 					Node:          node,
 				}
 				node.TaskScheduled = true
-				o.taskStore[taskID] = task
-				o.taskQueue = append(o.taskQueue, task)
+				o.TaskStore[taskID] = task
+				o.TaskQueue = append(o.TaskQueue, task)
 			}
 		}
 	}
@@ -337,14 +337,14 @@ func (o *Orchestrator) scheduleTasks(expr *Expression) {
 
 func (o *Orchestrator) RunServer() error {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/v1/calculate", o.calculateHandler)
-	mux.HandleFunc("/api/v1/expressions", o.expressionsHandler)
-	mux.HandleFunc("/api/v1/expressions/", o.expressionByIDHandler)
+	mux.HandleFunc("/api/v1/calculate", o.CalculateHandler)
+	mux.HandleFunc("/api/v1/expressions", o.ExpressionsHandler)
+	mux.HandleFunc("/api/v1/expressions/", o.ExpressionByIDHandler)
 	mux.HandleFunc("/internal/task", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
-			o.getTaskHandler(w, r)
+			o.GetTaskHandler(w, r)
 		} else if r.Method == http.MethodPost {
-			o.postTaskHandler(w, r)
+			o.PostTaskHandler(w, r)
 		} else {
 			http.Error(w, `{"error":"Wrong Method"}`, http.StatusMethodNotAllowed)
 		}
@@ -356,8 +356,8 @@ func (o *Orchestrator) RunServer() error {
 		for {
 			time.Sleep(2 * time.Second)
 			o.mu.Lock()
-			if len(o.taskQueue) > 0 {
-				log.Printf("Pending tasks in queue: %d", len(o.taskQueue))
+			if len(o.TaskQueue) > 0 {
+				log.Printf("Pending tasks in queue: %d", len(o.TaskQueue))
 			}
 			o.mu.Unlock()
 		}
