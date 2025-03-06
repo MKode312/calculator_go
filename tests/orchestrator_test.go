@@ -12,9 +12,7 @@ import (
 	"github.com/MKode312/calculator_go/pkg/ast"
 )
 
-// Test ConfigFromEnv function
 func TestConfigFromEnv(t *testing.T) {
-	// Set environment variables for testing
 	os.Setenv("PORT", "8081")
 	os.Setenv("TIME_ADDITION_MS", "200")
 	os.Setenv("TIME_SUBTRACTION_MS", "200")
@@ -41,10 +39,8 @@ func TestConfigFromEnv(t *testing.T) {
 	}
 }
 
-// Test Orchestrator's calculateHandler method
 func TestCalculateHandler(t *testing.T) {
 	orchestrator := application.NewOrchestrator()
-	// Добавить выражение или задачу перед тестом, чтобы использовать правильный ID
 	orchestrator.ExprStore["1"] = &application.Expression{
 		ID:     "1",
 		Expr:   "3 + 2",
@@ -72,7 +68,7 @@ func TestExpressionsHandler(t *testing.T) {
 	tests := []struct {
 		method      string
 		statusCode  int
-		expectedLen int // Expected length of the expressions array
+		expectedLen int
 	}{
 		{http.MethodGet, http.StatusOK, 1},
 		{"POST", http.StatusMethodNotAllowed, 0},
